@@ -34,7 +34,7 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	
 link: 
 	@ echo !=== Linking 
-	$(LD) $(LDFLAGS) -o $(BUILDDIR)/kernel.exe $(OBJS)
+	$(LD) $(LDFLAGS) -o $(BUILDDIR)/kernel.elf $(OBJS)
 	
 	
 setup:
@@ -49,7 +49,7 @@ buildimg:
 	mmd -i $(OSNAME).img ::/EFI/BOOT
 	mcopy -i $(OSNAME).img $(BOOTEFI) ::/EFI/BOOT
 	mcopy -i $(OSNAME).img $(BUILDDIR)/startup.nsh ::
-	mcopy -i $(OSNAME).img $(BUILDDIR)/kernel.exe ::
+	mcopy -i $(OSNAME).img $(BUILDDIR)/kernel.elf ::
 	mcopy -i $(OSNAME).img $(BUILDDIR)/zap-light16.psf ::
 
 run:
