@@ -6,7 +6,7 @@ uint64_t usedMemory;
 
 bool Initialized = false;
 
-extern PageFrameAllocator pageAllocator;
+extern PageFrameAllocator PageAllocator;
 
 void PageFrameAllocator::ReadEFIMemoryMap(EFI_MEMORY_DESCRIPTOR* mMap, size_t mMapSize, size_t mMapDescSize) {
     if(Initialized)
