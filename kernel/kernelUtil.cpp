@@ -36,17 +36,28 @@ void PrepareMemory(BootInfo* bootInfo) {
 }
 
 IDTR idtr;
+void SetIDTGate(void* handler, uint8_t entryOffset, uint8_t typeAttr, uint8_t selector) {
+	IDTDescEntry* interrupt = (IDTDescEntry*)(idtr.Offset + entryOffset * sizeof(IDTDescEntry));
+	interrupt->SetOffset((uint64_t)handler);
+	interrupt->type_attr = typeAttr;
+	interrupt->selector = selector;
+}
+
 void PrepareInterrupts() {
 	idtr.Limit = 0x0fff;
 	idtr.Offset = (uint64_t)PageAllocator.RequestPage();
 
-	IDTDescEntry* int_PageFault = (IDTDescEntry*)(idtr.Offset + 0xE * sizeof(IDTDescEntry));
-	int_PageFault->SetOffset((uint64_t)PageFault_Handler);
-	int_PageFault->type_attr = IDT_TA_InterruptGate;
-	int_PageFault->selector = 0x08;
+	SetIDTGate((void*)PageFault_Handler, 0xE, IDT_TA_InterruptGate, 0x08);
+	SetIDTGate((void*)DoubleFault_Handler, 0x8, IDT_TA_InterruptGate, 0x08);
+	SetIDTGate((void*)GPFault_Handler, 0xD, IDT_TA_InterruptGate, 0x08);
+	SetIDTGate((void*)KeyboardInt_Handler, 0x21, IDT_TA_InterruptGate, 0x08);
+	SetIDTGate((void*)MouseInt_Handler, 0x2C, IDT_TA_InterruptGate, 0x08);
 
 	asm("lidt %0" : : "m" (idtr));
+
+	RemapPIC();	
 }
+
 BasicRenderer r = BasicRenderer(NULL, NULL);
 KernelInfo InitializeKernel(BootInfo* bootInfo) {
 	r = BasicRenderer(bootInfo->framebuffer, bootInfo->psf1_font);
@@ -60,6 +71,12 @@ KernelInfo InitializeKernel(BootInfo* bootInfo) {
     PrepareMemory(bootInfo);
     memset(bootInfo->framebuffer->BaseAddress, 0, bootInfo->framebuffer->BufferSize); // clear screen
 	PrepareInterrupts();
+	InitPS2Mouse();
+
+	outb(PIC1_DATA, 0b11111001);
+	outb(PIC2_DATA, 0b11101111);
+
+	asm("sti");
 
     return kernelInfo;
 }

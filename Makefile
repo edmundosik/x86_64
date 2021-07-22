@@ -8,7 +8,7 @@ CC = gcc
 LD = ld
 ASM = nasm
 
-CFLAGS = -ffreestanding -fshort-wchar -I $(INCLUDEDIR)/ -I $(KERNELDIR)/
+CFLAGS = -ffreestanding -fshort-wchar -I $(INCLUDEDIR)/ -I $(KERNELDIR)/ -mno-red-zone
 LDFLAGS = -T $(LDS) -static -Bsymbolic -nostdlib
 ASMFLAGS = 
 

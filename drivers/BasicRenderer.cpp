@@ -37,7 +37,15 @@ void BasicRenderer::putChar(char chr, unsigned int xOffset, unsigned int yOffset
 	
 }
 
-void BasicRenderer::clear(uint32_t color) {
+void BasicRenderer::putChar(char chr) {
+	putChar(chr, CursorPosition.X, CursorPosition.Y);
+    CursorPosition.X += 8;
+    if (CursorPosition.X + 8 > TargetFrameBuffer->Width)
+        CursorPosition = {0, CursorPosition.Y += 16};
+	
+}
+
+void BasicRenderer::clear() {
     uint64_t fbBase = (uint64_t)TargetFrameBuffer->BaseAddress;
     uint64_t fbSize = TargetFrameBuffer->BufferSize;
     uint64_t bytesPerScanline = TargetFrameBuffer->PixelsPerScanline * 4;
@@ -46,11 +54,33 @@ void BasicRenderer::clear(uint32_t color) {
     for(int vertScanLine = 0; vertScanLine < fbHeight; vertScanLine++) {
         uint64_t pixPtrBase = fbBase + (bytesPerScanline * vertScanLine);
         for (uint32_t* pixPtr = (uint32_t*)pixPtrBase; pixPtr < (uint32_t*)(pixPtrBase + bytesPerScanline); pixPtr++) {
-            *pixPtr = color;
+            *pixPtr = clearColor;
         }
     }
 }
 
 void BasicRenderer::nextLine() {
     CursorPosition = {0, CursorPosition.Y += 16};
+}
+
+void BasicRenderer::clearChar() {
+    if(CursorPosition.X == 0) {
+        CursorPosition.X = TargetFrameBuffer->Width;
+        CursorPosition.Y -= 16;
+        if(CursorPosition.Y < 0)
+            CursorPosition.Y = 0;
+    }
+
+    unsigned int* pixPtr = (unsigned int*)TargetFrameBuffer->BaseAddress;
+    for (unsigned long y = CursorPosition.Y; y < CursorPosition.Y + 16; y++) 
+		for (unsigned long x = CursorPosition.X - 8; x < CursorPosition.X; x++) 
+				*(unsigned int*)(pixPtr + x + (y * TargetFrameBuffer->PixelsPerScanline)) = clearColor;
+
+    CursorPosition.X -= 8;
+    if(CursorPosition.X < 0) {
+        CursorPosition.X = TargetFrameBuffer->Width;
+        CursorPosition.Y -= 16;
+        if(CursorPosition.Y < 0) 
+            CursorPosition.Y = 0;
+    }
 }

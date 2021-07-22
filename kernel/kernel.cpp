@@ -4,7 +4,8 @@ extern "C" void _start(BootInfo* bootInfo) {
 	KernelInfo kernelInfo = InitializeKernel(bootInfo);
 	PageTableManager* pageTableManager = kernelInfo.pageTableManager;
 	
-	renderer->clear(0xff4B5263);
+	renderer->clearColor = 0xff4B5263;
+	renderer->clear();
 	renderer->color = 0xffC9CBD0;
 
 	renderer->print("Kernel successfully initialized.");
@@ -25,9 +26,12 @@ extern "C" void _start(BootInfo* bootInfo) {
 	renderer->print(" MB");
 	renderer->nextLine();
 
-	//int* pagefault = (int*)0x80000000000;
-	//*pagefault = 2;
+	// int* pagefault = (int*)0x80000000000;
+	// *pagefault = 2;
 	
+	while(true) {
+		ProccessMousePacket();
+	}
 
 	while(true);
 }

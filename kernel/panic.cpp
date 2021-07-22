@@ -1,12 +1,15 @@
 #include "panic.h"
 
 void panic(const char* panicMessage) {
-    renderer->clear(0xff000082);
+    renderer->clearColor = 0xff000082;
+    renderer->clear();
     renderer->CursorPosition = {0, 0};
     renderer->color = 0xffffffff;
 
     renderer->nextLine();
-    renderer->print("A problem has detected and Windows has been shut down to prevent damage to your computer");
+    renderer->print("A problem has detected and Windows has been shut down to prevent damage");
+    renderer->nextLine();
+    renderer->print("to your computer.");
     renderer->nextLine();
     renderer->nextLine();
     renderer->print(panicMessage);
