@@ -35,7 +35,23 @@ void PrepareMemory(BootInfo* bootInfo) {
 	kernelInfo.pageTableManager = &pageTableManager;
 }
 
+IDTR idtr;
+void PrepareInterrupts() {
+	idtr.Limit = 0x0fff;
+	idtr.Offset = (uint64_t)PageAllocator.RequestPage();
+
+	IDTDescEntry* int_PageFault = (IDTDescEntry*)(idtr.Offset + 0xE * sizeof(IDTDescEntry));
+	int_PageFault->SetOffset((uint64_t)PageFault_Handler);
+	int_PageFault->type_attr = IDT_TA_InterruptGate;
+	int_PageFault->selector = 0x08;
+
+	asm("lidt %0" : : "m" (idtr));
+}
+BasicRenderer r = BasicRenderer(NULL, NULL);
 KernelInfo InitializeKernel(BootInfo* bootInfo) {
+	r = BasicRenderer(bootInfo->framebuffer, bootInfo->psf1_font);
+	renderer = &r;
+
     GDTDescriptor gdtDescriptor;
     gdtDescriptor.Size = sizeof(GDT) - 1;
     gdtDescriptor.Offset = (uint64_t)&DefaultGDT;
@@ -43,5 +59,7 @@ KernelInfo InitializeKernel(BootInfo* bootInfo) {
 
     PrepareMemory(bootInfo);
     memset(bootInfo->framebuffer->BaseAddress, 0, bootInfo->framebuffer->BufferSize); // clear screen
+	PrepareInterrupts();
+
     return kernelInfo;
 }

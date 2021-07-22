@@ -9,6 +9,8 @@
 #include "paging/PageTableManager.h"
 #include "paging/paging.h"
 #include "gdt/gdt.h"
+#include "interrupts/IDT.h"
+#include "interrupts/interrupts.h"
 
 struct BootInfo{
 	FrameBuffer* framebuffer;

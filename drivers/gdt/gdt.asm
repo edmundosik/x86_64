@@ -1,6 +1,7 @@
-[BITS 64]
+[bits 64]
 
 LoadGDT:
+    cli
     lgdt [rdi]
     mov ax, 0x10
     mov ds, ax

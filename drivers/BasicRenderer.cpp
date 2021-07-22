@@ -1,5 +1,7 @@
 #include <BasicRenderer.h>
 
+BasicRenderer* renderer;
+
 BasicRenderer::BasicRenderer(FrameBuffer* targetFrameBuffer, PSF1_FONT* PSF1_font) {
     TargetFrameBuffer = targetFrameBuffer;
     PSF1_Font = PSF1_font;
@@ -16,7 +18,7 @@ void BasicRenderer::print(const char* str) {
             CursorPosition.X = 0;
             CursorPosition.Y += 16;
         }
-    chr++;
+        chr++;
     }
 }
 
@@ -33,4 +35,22 @@ void BasicRenderer::putChar(char chr, unsigned int xOffset, unsigned int yOffset
 		fontPtr++;
 	}
 	
+}
+
+void BasicRenderer::clear(uint32_t color) {
+    uint64_t fbBase = (uint64_t)TargetFrameBuffer->BaseAddress;
+    uint64_t fbSize = TargetFrameBuffer->BufferSize;
+    uint64_t bytesPerScanline = TargetFrameBuffer->PixelsPerScanline * 4;
+    uint64_t fbHeight = TargetFrameBuffer->Height;
+    
+    for(int vertScanLine = 0; vertScanLine < fbHeight; vertScanLine++) {
+        uint64_t pixPtrBase = fbBase + (bytesPerScanline * vertScanLine);
+        for (uint32_t* pixPtr = (uint32_t*)pixPtrBase; pixPtr < (uint32_t*)(pixPtrBase + bytesPerScanline); pixPtr++) {
+            *pixPtr = color;
+        }
+    }
+}
+
+void BasicRenderer::nextLine() {
+    CursorPosition = {0, CursorPosition.Y += 16};
 }

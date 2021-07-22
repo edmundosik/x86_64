@@ -8,7 +8,7 @@ CC = gcc
 LD = ld
 ASM = nasm
 
-CFLAGS = -ffreestanding -fshort-wchar -I $(INCLUDEDIR)/
+CFLAGS = -ffreestanding -fshort-wchar -I $(INCLUDEDIR)/ -I $(KERNELDIR)/
 LDFLAGS = -T $(LDS) -static -Bsymbolic -nostdlib
 ASMFLAGS = 
 
@@ -16,6 +16,7 @@ SRCDIR := ./
 OBJDIR := compiled
 BUILDDIR = iso
 INCLUDEDIR = include
+KERNELDIR = kernel
 LIBDIR = lib
 BOOTEFI := $(GNUEFI)/x86_64/bootloader/main.efi
 
@@ -30,6 +31,11 @@ DIRS = $(wildcard $(SRCDIR)/*)
 all: kernel buildimg
 
 kernel: $(OBJS) link
+
+$(OBJDIR)/drivers/interrupts/interrupts.o: $(SRCDIR)/drivers/interrupts/interrupts.cpp
+	@ echo !=== Compiling $^
+	@ mkdir -p $(@D)
+	$(CC) -mno-red-zone -mgeneral-regs-only -ffreestanding -I $(INCLUDEDIR)/ -I $(KERNELDIR)/ -c $^ -o $@
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	@ echo !=== Compiling $^
