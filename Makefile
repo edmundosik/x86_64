@@ -6,9 +6,11 @@ OVMFDIR = boot/OVMFbin
 LDS = linker.ld
 CC = gcc
 LD = ld
+ASM = nasm
 
 CFLAGS = -ffreestanding -fshort-wchar -I $(INCLUDEDIR)/
 LDFLAGS = -T $(LDS) -static -Bsymbolic -nostdlib
+ASMFLAGS = 
 
 SRCDIR := ./
 OBJDIR := compiled
@@ -19,8 +21,10 @@ BOOTEFI := $(GNUEFI)/x86_64/bootloader/main.efi
 
 rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
 
-SRC = $(call rwildcard,$(SRCDIR),*.cpp)          
+SRC = $(call rwildcard,$(SRCDIR),*.cpp)        
+ASMSRC = $(call rwildcard,$(SRCDIR),*.asm)   
 OBJS = $(patsubst $(SRCDIR)/%.cpp, $(OBJDIR)/%.o, $(SRC))
+OBJS += $(patsubst $(SRCDIR)/%.asm, $(OBJDIR)/%.asm.o, $(ASMSRC))
 DIRS = $(wildcard $(SRCDIR)/*)
 
 all: kernel buildimg
@@ -31,6 +35,11 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	@ echo !=== Compiling $^
 	@ mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c $^ -o $@
+
+$(OBJDIR)/%.asm.o: $(SRCDIR)/%.asm
+	@ echo !=== Compiling $^
+	@ mkdir -p $(@D)
+	$(ASM) $(ASMFLAGS) $^ -f elf64 -o $@
 	
 link: 
 	@ echo !=== Linking 
