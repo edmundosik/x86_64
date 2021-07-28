@@ -11,3 +11,5 @@ const char* hex_to_string(uint8_t value);
 const char* hex_to_string(uint16_t value);
 const char* hex_to_string(uint32_t value);
 const char* hex_to_string(uint64_t value);
+
+bool strcmp(char* a, char* b, uint64_t length);

@@ -13,6 +13,9 @@
 #include "interrupts/interrupts.h"
 #include "io.h"
 #include "input/mouse.h"
+#include "tty/terminal.h"
+#include "acpi.h"
+#include "pci.h"
 
 struct BootInfo{
 	FrameBuffer* framebuffer;
@@ -20,7 +23,14 @@ struct BootInfo{
 	EFI_MEMORY_DESCRIPTOR* mMap;
 	uint64_t mMapSize;
 	uint64_t mMapDescSize;
+	ACPI::RSDP2* rsdp;
 };
+
+extern uint32_t bgColor;
+extern uint32_t fgColor;
+
+extern ACPI::SDTHeader* xsdt;
+extern ACPI::MCFGHeader* mcfg;
 
 extern uint64_t _KernelStart;
 extern uint64_t _KernelEnd;

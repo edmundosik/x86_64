@@ -17,7 +17,8 @@ __attribute__((interrupt)) void GPFault_Handler(interrupt_frame* frame) {
 
 __attribute__((interrupt)) void KeyboardInt_Handler(interrupt_frame* frame) {
     uint8_t scanCode = inb(0x60);
-    HandleKeyboard(scanCode);
+    kbScancode = scanCode;
+    HandleKeyboard();
     PIC_EndMaster();
 }
 

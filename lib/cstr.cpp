@@ -161,3 +161,12 @@ char const* hex_to_string(uint64_t value) {
     hex_to_string_out[size + 1] = 0;
     return hex_to_string_out;
 }
+
+bool strcmp(char* a, char* b, uint64_t length) {
+    for(int i = 0; i < length; i++) {
+        //if(*a != *b)
+        if(a[i] != b[i])
+            return 0;
+    }
+    return 1;
+}

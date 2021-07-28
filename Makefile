@@ -9,7 +9,7 @@ LD = ld
 ASM = nasm
 
 CFLAGS = -ffreestanding -fshort-wchar -I $(INCLUDEDIR)/ -I $(KERNELDIR)/ -mno-red-zone
-LDFLAGS = -T $(LDS) -static -Bsymbolic -nostdlib
+LDFLAGS = -T $(LDS) -static -Bsymbolic -nostdlib 
 ASMFLAGS = 
 
 SRCDIR := ./
@@ -28,7 +28,7 @@ OBJS = $(patsubst $(SRCDIR)/%.cpp, $(OBJDIR)/%.o, $(SRC))
 OBJS += $(patsubst $(SRCDIR)/%.asm, $(OBJDIR)/%.asm.o, $(ASMSRC))
 DIRS = $(wildcard $(SRCDIR)/*)
 
-all: kernel buildimg
+all: kernel buildiso
 
 kernel: $(OBJS) link
 
@@ -58,15 +58,23 @@ setup:
 	@mkdir $(OBJDIR)
 
 buildimg:
-	dd if=/dev/zero of=$(OSNAME).img bs=512 count=93750
+	cp $(BOOTEFI) iso/EFI/BOOT
+	mv iso/EFI/BOOT/main.efi iso/EFI/BOOT/BOOTX64.efi
+	dd if=/dev/zero of=$(OSNAME).img bs=1k count=1440
 	mformat -i $(OSNAME).img -f 1440 ::
 	mmd -i $(OSNAME).img ::/EFI
 	mmd -i $(OSNAME).img ::/EFI/BOOT
-	mcopy -i $(OSNAME).img $(BOOTEFI) ::/EFI/BOOT
+	mcopy -i $(OSNAME).img iso/EFI/BOOT/BOOTX64.efi ::/EFI/BOOT
 	mcopy -i $(OSNAME).img $(BUILDDIR)/startup.nsh ::
 	mcopy -i $(OSNAME).img $(BUILDDIR)/kernel.elf ::
 	mcopy -i $(OSNAME).img $(BUILDDIR)/zap-light16.psf ::
 
+buildiso: buildimg
+	cp $(OSNAME).img iso
+	cp $(BOOTEFI) iso/EFI/BOOT
+	mv iso/EFI/BOOT/main.efi iso/EFI/BOOT/BOOTX64.efi
+	xorriso -as mkisofs -R -f -e $(OSNAME).img -no-emul-boot -o $(OSNAME).iso iso
+	
 run:
 	qemu-system-x86_64 -drive file=$(BUILDDIR)/$(OSNAME).img -m 256M -cpu qemu64 -drive if=pflash,format=raw,unit=0,file="$(OVMFDIR)/OVMF_CODE-pure-efi.fd",readonly=on -drive if=pflash,format=raw,unit=1,file="$(OVMFDIR)/OVMF_VARS-pure-efi.fd" -net none
 

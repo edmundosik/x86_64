@@ -43,5 +43,5 @@ void panic(const char* panicMessage) {
     renderer->print("Technical information:");
     renderer->nextLine();
     renderer->nextLine();
-    renderer->print("*** STOP: 0x00000000 (0x00000000, 0x00000000, 0x00000000, 0x00000000)");
+    renderer->print("*** STOP: 0x00000000 (0x00000000, 0x00000000, 0x00000000, 0x00000000)"); // TODO: display additional info
 }
