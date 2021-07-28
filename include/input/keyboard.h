@@ -1,7 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include "input/kbScancodeTranslation.h"
-#include "BasicRenderer.h"
+#include "gfx/BasicRenderer.h"
 #include "cstr.h"
 
 void HandleKeyboard();

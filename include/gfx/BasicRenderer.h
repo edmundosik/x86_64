@@ -1,8 +1,8 @@
 #pragma once
 #include <stdint.h>
 #include "math.h"
-#include "FrameBuffer.h"
-#include "SimpleFonts.h"
+#include "gfx/FrameBuffer.h"
+#include "gfx/SimpleFonts.h"
 
 class BasicRenderer{
     public:

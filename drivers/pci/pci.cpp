@@ -1,4 +1,4 @@
-#include "pci.h"
+#include "pci/pci.h"
 
 namespace PCI {
     void EnumerateFunction(uint64_t deviceAddress, uint64_t function) {

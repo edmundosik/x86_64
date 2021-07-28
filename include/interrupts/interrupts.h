@@ -1,5 +1,5 @@
 #pragma once
-#include "BasicRenderer.h"
+#include "gfx/BasicRenderer.h"
 #include "panic.h"
 #include "io.h"
 #include "input/keyboard.h"

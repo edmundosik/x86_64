@@ -1,4 +1,4 @@
-#include "paging/PageFrameAllocator.h"
+#include "memory/paging/PageFrameAllocator.h"
 
 uint64_t freeMemory;
 uint64_t reservedMemory;

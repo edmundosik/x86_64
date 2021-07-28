@@ -1,8 +1,8 @@
 #pragma once
 #include <stdint.h>
-#include "efiMemory.h"
-#include "Bitmap.h"
-#include "memory.h"
+#include "memory/efiMemory.h"
+#include "memory/Bitmap.h"
+#include "memory/memory.h"
 
 class PageFrameAllocator {
     public:

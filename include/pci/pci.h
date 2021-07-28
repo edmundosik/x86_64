@@ -1,8 +1,8 @@
 #pragma once
 #include <stdint.h>
-#include "acpi.h"
-#include "paging/PageTableManager.h"
-#include "BasicRenderer.h"
+#include "pci/acpi.h"
+#include "memory/paging/PageTableManager.h"
+#include "gfx/BasicRenderer.h"
 #include "cstr.h"
 
 namespace PCI {

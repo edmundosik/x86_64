@@ -1,4 +1,4 @@
-#include "Bitmap.h"
+#include "memory/Bitmap.h"
 
 bool Bitmap::operator[](uint64_t index) {
     if(index > Size * 8)

@@ -1,7 +1,7 @@
-#include "paging/PageTableManager.h"
-#include "paging/PageMapIndexer.h"
-#include "paging/PageFrameAllocator.h"
-#include "memory.h"
+#include "memory/paging/PageTableManager.h"
+#include "memory/paging/PageMapIndexer.h"
+#include "memory/paging/PageFrameAllocator.h"
+#include "memory/memory.h"
 
 PageTableManager gPageTableManager = NULL;
 

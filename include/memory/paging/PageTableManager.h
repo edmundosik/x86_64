@@ -1,6 +1,6 @@
 #pragma once
 #include <stdint.h>
-#include "paging/paging.h"
+#include "memory/paging/paging.h"
 
 class PageTableManager {
     public:

@@ -1,4 +1,4 @@
-#include "acpi.h"
+#include "pci/acpi.h"
 
 namespace ACPI{
     void* FindTable(SDTHeader* sdtHeader, char* signature) {
