@@ -5,14 +5,14 @@ OS made by tutorials from https://www.youtube.com/channel/UC15iQ_QzTPxB6yGzzifJf
 ## Working:
 - PS/2 Keyboard (PAGE_FAULT when writing outside framebuffer)
 - PS/2 Mouse (doesn't work properly in VirtualBox)
-- Very buggy TTY
+- Very buggy console
 - Panic screen like a Windows BSOD
 
 ## TODO:
 - [ ] USB Support
 - [ ] Networking
 - [ ] AHCI Support
-- [ ] Fix TTY
+- [ ] Fix console
 - [ ] Filesystem Support
 - [ ] Simple GUI
 - [ ] More informative Panic screen
