@@ -29,7 +29,7 @@ void HandleKeyboard() {
                 return;
             case Backspace:
                 if(CanErease){
-                    kbBuffer[index - 1] = '\0';
+                    // kbBuffer[index - 1] = 0;
                     renderer->clearChar();
                 }
                 return;
@@ -42,15 +42,31 @@ void HandleKeyboard() {
     char ascii = QWERTYKeyboard::Translate(kbScancode, isLeftShift | isRightShift);
     if (ascii != 0) {
         if(CanWrite){
-            kbBuffer[index] = ascii;
-            renderer->putChar(ascii);                
-            index++;
+            renderer->putChar(ascii);
+
+            // kbBuffer[index] = ascii;          
+            // index++;
         }
     }
 }
 
+char GetKey() {
+    if(kbScancode != 0) {
+        return QWERTYKeyboard::Translate(kbScancode, isLeftShift | isRightShift);
+    }
+    return 0;
+}
+
 void clearBuffer(char buffer[]) {
-    for(int i = 0; buffer[i] != '\0'; i++)
-        buffer[i] = ' ';
-    index = 0;
+    for(int i = 0; buffer[i] != 0; i++)
+        buffer[i] = 0;
+    //index = 0;
+
+    //memset(&buffer[0], 0, sizeof(buffer));
+
+    // int i = 0;
+    // while(buffer[i] != '\0') {
+    //     buffer[i] = '\0';
+    //     i++;
+    // }
 }
