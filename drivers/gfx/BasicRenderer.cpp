@@ -12,6 +12,10 @@ BasicRenderer::BasicRenderer(FrameBuffer* targetFrameBuffer, PSF1_FONT* PSF1_fon
 void BasicRenderer::print(const char* str) {
 	char* chr = (char*)str;
     while(*chr != 0) {
+        if(CursorPosition.Y + 16 > TargetFrameBuffer->Height) { // TODO: Handle scrolling to get rid of Page fault
+			CursorPosition.Y = 0;
+			clear();
+		}
         putChar(*chr, CursorPosition.X, CursorPosition.Y);
         CursorPosition.X += 8;
         if(CursorPosition.X + 8 > TargetFrameBuffer->Width) {
@@ -19,17 +23,34 @@ void BasicRenderer::print(const char* str) {
             CursorPosition.Y += 16;
         }
         chr++;
+    }
+}
 
-        if(renderer->CursorPosition.Y + 16 > renderer->TargetFrameBuffer->Height) { // TODO: Handle scrolling to get rid of Page fault
-			renderer->CursorPosition.Y = 0;
-			renderer->clear();
+void BasicRenderer::print(const char* str, Point pos) {
+	char* chr = (char*)str;
+    while(*chr != 0) {
+        if(pos.Y + 16 > TargetFrameBuffer->Height) { // TODO: Handle scrolling to get rid of Page fault
+			pos.Y = 0;
+			clear();
 		}
+        putChar(*chr, pos.X, pos.Y);
+        pos.X += 8;
+        if(pos.X + 8 > TargetFrameBuffer->Width) {
+            pos.X = 0;
+            pos.Y += 16;
+        }
+        chr++;
     }
 }
 
 void BasicRenderer::putChar(char chr, unsigned int xOffset, unsigned int yOffset) {
 	unsigned int* pixPtr = (unsigned int*)TargetFrameBuffer->BaseAddress;
 	char* fontPtr = (char*)PSF1_Font->glyphBuffer + (chr * PSF1_Font->psf1_Header->charsize);
+
+    if(renderer->CursorPosition.Y + 16 > renderer->TargetFrameBuffer->Height) { // TODO: Handle scrolling to get rid of Page fault
+			renderer->CursorPosition.Y = 0;
+			renderer->clear();
+	}
 
 	for (unsigned long y = yOffset; y < yOffset + 16; y++) {
 		for (unsigned long x = xOffset; x < xOffset + 8; x++) {
@@ -181,7 +202,7 @@ void BasicRenderer::rect(Point position, Point size, uint32_t color) {
     }
 }
 
-void BasicRenderer::draw_icon(Point pos, Point size, uint8_t pixels[]) {
+void BasicRenderer::draw_icon(Point pos, Point size, uint64_t pixels[]) {
     int i, j, l;
     for (l = j = 0; l < size.X; l++) {
         for (i = 0; i < size.Y; i++, j++) {

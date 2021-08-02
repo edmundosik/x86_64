@@ -15,6 +15,7 @@ class BasicRenderer{
         unsigned int color;
         unsigned int clearColor;
         void print(const char* str);
+        void print(const char* str, Point pos);
         void putChar(char chr, unsigned int xOffset, unsigned int yOffset);
         void putChar(char chr);
         void clear();
@@ -30,7 +31,7 @@ class BasicRenderer{
         void cursorBlink();
         void printWithShadow(const char* str, uint32_t shadowColor, long shadowDistance);
         void rect(Point position, Point size, uint32_t color);
-        void draw_icon(Point pos, Point size, uint8_t pixels[]);
+        void draw_icon(Point pos, Point size, uint64_t pixels[]);
 };
 
 extern BasicRenderer* renderer;
