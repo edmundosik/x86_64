@@ -57,6 +57,7 @@ void PrepareInterrupts() {
 	SetIDTGate((void*)GPFault_Handler, 0xD, IDT_TA_InterruptGate, 0x08);
 	SetIDTGate((void*)KeyboardInt_Handler, 0x21, IDT_TA_InterruptGate, 0x08);
 	SetIDTGate((void*)MouseInt_Handler, 0x2C, IDT_TA_InterruptGate, 0x08);
+	SetIDTGate((void*)PITInt_Handler, 0x20, IDT_TA_InterruptGate, 0x08);
 
 	asm("lidt %0" : : "m" (idtr));
 
@@ -75,19 +76,100 @@ KernelInfo InitializeKernel(BootInfo* bootInfo) {
 	r = BasicRenderer(bootInfo->framebuffer, bootInfo->psf1_font);
 	renderer = &r;
 
-    GDTDescriptor gdtDescriptor;
+    PrepareMemory(bootInfo);
+    memset(bootInfo->framebuffer->BaseAddress, 0, bootInfo->framebuffer->BufferSize); // clear screen
+
+	bgColor = 0xff4B5263;
+	fgColor = 0xffC9CBD0;
+
+	renderer->clearColor = bgColor;
+	renderer->clear();
+	renderer->color = fgColor;
+
+	GDTDescriptor gdtDescriptor;
     gdtDescriptor.Size = sizeof(GDT) - 1;
     gdtDescriptor.Offset = (uint64_t)&DefaultGDT;
     LoadGDT(&gdtDescriptor);
+	renderer->print("[ ");
+	renderer->color = 0xff00ff00;
+	renderer->print("OK");
+	renderer->color = fgColor;
+	renderer->print(" ] ");
+	renderer->print("GDT loaded");
+	renderer->nextLine();
 
-    PrepareMemory(bootInfo);
-    memset(bootInfo->framebuffer->BaseAddress, 0, bootInfo->framebuffer->BufferSize); // clear screen
+	InitHeap((void*)0x0000100000000000, 0x10);
+	renderer->print("[ ");
+	renderer->color = 0xff00ff00;
+	renderer->print("OK");
+	renderer->color = fgColor;
+	renderer->print(" ] ");
+	renderer->print("Heap initialized");
+	renderer->nextLine();
+
 	PrepareInterrupts();
-	InitPS2Mouse();
-	PrepareACPI(bootInfo);
+	renderer->print("[ ");
+	renderer->color = 0xff00ff00;
+	renderer->print("OK");
+	renderer->color = fgColor;
+	renderer->print(" ] ");
+	renderer->print("Interrupts initialized");
+	renderer->nextLine();
 
-	outb(PIC1_DATA, 0b11111001);
+	InitPS2Mouse();
+	renderer->print("[ ");
+	renderer->color = 0xff00ff00;
+	renderer->print("OK");
+	renderer->color = fgColor;
+	renderer->print(" ] ");
+	renderer->print("PS/2 Mouse initialized");
+	renderer->nextLine();
+
+	PrepareACPI(bootInfo);
+	renderer->print("[ ");
+	renderer->color = 0xff00ff00;
+	renderer->print("OK");
+	renderer->color = fgColor;
+	renderer->print(" ] ");
+	renderer->print("ACPI initialized");
+	renderer->nextLine();
+
+	outb(PIC1_DATA, 0b11111000);
 	outb(PIC2_DATA, 0b11101111);
+	renderer->print("[ ");
+	renderer->color = 0xff00ff00;
+	renderer->print("OK");
+	renderer->color = fgColor;
+	renderer->print(" ] ");
+	renderer->print("Unmasked interrupts");
+	renderer->nextLine();
+
+	PIT::SetDivisor(65535);
+	renderer->print("[ ");
+	renderer->color = 0xff00ff00;
+	renderer->print("OK");
+	renderer->color = fgColor;
+	renderer->print(" ] ");
+	renderer->print("PIT initialized");
+	renderer->nextLine();
+
+	if(InitSerial() == 0) {
+		renderer->print("[ ");
+		renderer->color = 0xff00ff00;
+		renderer->print("OK");
+		renderer->color = fgColor;
+		renderer->print(" ] ");
+		renderer->print("Serial initialized");
+		renderer->nextLine();
+	} else {
+		renderer->print("[ ");
+		renderer->color = 0xffff0000;
+		renderer->print("ERROR");
+		renderer->color = fgColor;
+		renderer->print(" ] ");
+		renderer->print("Serial initialization failed");
+		renderer->nextLine();
+	}
 
 	asm("sti");
 

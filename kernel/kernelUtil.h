@@ -4,6 +4,7 @@
 #include "cstr.h"
 #include "memory/memory.h"
 #include "memory/Bitmap.h"
+#include "memory/heap.h"
 #include "memory/paging/PageFrameAllocator.h"
 #include "memory/paging/PageMapIndexer.h"
 #include "memory/paging/PageTableManager.h"
@@ -13,9 +14,13 @@
 #include "interrupts/interrupts.h"
 #include "io.h"
 #include "input/mouse.h"
-#include "tty/terminal.h"
+#include "console/console.h"
 #include "pci/acpi.h"
 #include "pci/pci.h"
+#include "scheduling/pit/pit.h"
+#include "date.h"
+#include "serial/serial.h"
+#include "serial/terminal.h"
 
 struct BootInfo{
 	FrameBuffer* framebuffer;
