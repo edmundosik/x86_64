@@ -1,19 +1,21 @@
-#include "tty/terminal.h"
+#include "console/console.h"
+
+char* buffer;
 
 void crash() {
-    clearBuffer(kbBuffer);
+    buffer = 0;
     int* pagefault = (int*)0x80000000000;
 	*pagefault = 2;
 }
 
 void clear() {
-    clearBuffer(kbBuffer);
+    buffer = 0;
     renderer->clear();
     renderer->CursorPosition = {0, 0};
 }
 
 void memory() {
-    clearBuffer(kbBuffer);
+    buffer = 0;
     renderer->print("Free RAM: ");
     renderer->print(to_string(PageAllocator.GetFreeRAM() / 1048576));
     renderer->print(" MB");
@@ -28,7 +30,7 @@ void memory() {
 }
 
 void help() {
-    clearBuffer(kbBuffer);
+    buffer = 0;
     renderer->print("cls or clear   - clear screen");
     renderer->nextLine();
     renderer->print("crash          - make system crash (PAGE_FAULT)");
@@ -45,16 +47,17 @@ void help() {
 }
 
 void error() {
-    clearBuffer(kbBuffer);
+    buffer = 0;
     uint32_t oldColor = renderer->color;
     renderer->color = 0xffff0000;
     renderer->print("ERROR: ");
     renderer->color = oldColor;
     renderer->print("Unknown command!");
+    renderer->nextLine();
 }
 
 void shadowtest() {
-    clearBuffer(kbBuffer);
+    buffer = 0;
     renderer->printWithShadow("Text with Shadow! with 1px distance", 0xff797a7a, 1);
     renderer->nextLine();
     renderer->printWithShadow("Text with Shadow! with 2px distance", 0xff797a7a, 2);
@@ -77,7 +80,7 @@ void shadowtest() {
 }
 
 void display() {
-    clearBuffer(kbBuffer);
+    buffer = 0;
     renderer->print("Resolution: ");
     renderer->print(to_string((uint64_t)renderer->TargetFrameBuffer->Width));
     renderer->print(" x ");
@@ -94,65 +97,43 @@ void display() {
 }
 
 void rect() {
-    clearBuffer(kbBuffer);
+    buffer = 0;
     renderer->rect({50, 100}, {15, 15}, 0xff00ff00);
 }
 
-void icontest() {
-    clearBuffer(kbBuffer);
-    uint8_t icon[] = {
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-    };
-
-    uint8_t icon2[] = {
-        0b10000000, 0b00000000,
-        0b11000000, 0b00000000,
-        0b10100000, 0b00000000,
-        0b10010000, 0b00000000,
-        0b10001000, 0b00000000,
-        0b10000100, 0b00000000,
-        0b10000010, 0b00000000,
-        0b10000001, 0b00000000,
-        0b10000000, 0b10000000,
-        0b10000011, 0b00000000,
-        0b10000100, 0b00000000,
-        0b10110010, 0b00000000,
-        0b11001010, 0b00000000,
-        0b10001001, 0b00000000,
-        0b00000101, 0b00000000,
-        0b00000010, 0b00000000
-    };
-
-    uint8_t array[]={0x00,0x00,0x00,0x00,0x00,0x00,0x01,0x01,0x01,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x01,0x00,0x00,0x00,0x01,0x01,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x01,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x01,0x01,0x00,0x00,0x00,0x00,0x00,0x01,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x01,0x00,0x00,0x00,0x00,0x00,0x01,0x01,0x01,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x01,0x01,0x00,0x00,0x00,0x00,0x00,0x01,0x00,0x00,0x00,0x01,0x01,0x00,0x00,0x00,0x00,0x01,0x00,0x00,0x00,0x01,0x01,0x01,0x00,0x00,0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x01,0x00,0x00,0x00,0x00,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x01,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x01,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x01,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x01,0x01,0x00,0x00,0x00,0x00,0x01,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x01,0x01,0x01,0x01,0x01,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
-
-    renderer->draw_icon({150, 200}, {16, 16}, array);
-}
-
 void devices() {
-    clearBuffer(kbBuffer);
+    buffer = 0;
     renderer->print("VendorID / DeviceID / Class / Subclass / ProgIF");
     renderer->nextLine();
     PCI::EnumeratePCI(mcfg);
 }
 
-void Terminal::InitTTY() {
+char* getInput() {
+    char* output = 0;
+    char tmp = 0;
+    int len = 0;;
+
+    while((tmp = GetKey()) != '\n') {
+        if(tmp != '\b') {
+            output[len] = tmp;
+            len++;
+        } else if(len > 0) {
+            len--;
+            output[len] = 0;
+        }
+    }
+
+    output[len] = 0;
+    return output;
+}
+
+void Console::InitCMD() {
+    malloc(0x80000);
     renderer->cursor = true;
-    clearBuffer(kbBuffer);
+    //renderer->print(charBufferToString());
+    renderer->nextLine();
+    //renderer->print(charBufferToString());
+    // memset(&kbBuffer[0], 0, sizeof(kbBuffer));
     CanWrite = true;
     CanErease = true;
 
@@ -166,11 +147,8 @@ void Terminal::InitTTY() {
     renderer->color = textColor;
 }
 
-void Terminal::loop() {
-    // if(kbBuffer[0] == '\0' || kbBuffer[1] == '\0')
-    //     CanErease = false;
-    // else
-    //     CanErease = true;
+void Console::loop() {
+    buffer = getInput();
 
     switch (kbScancode) {
         case Enter:
@@ -180,33 +158,34 @@ void Terminal::loop() {
 
     if(doCommand) {
         isReady = false;
-        if(strcmp(charBufferToString(), (char*)"crash", 5)) {
+        if(strcmp(getInput(), (char*)"crash")) {
             crash();
-        } else if(strcmp(charBufferToString(), (char*)"clear", 5)) {
+        } else if(strcmp(getInput(), (char*)"clear")) {
             clear();
-        } else if(strcmp(charBufferToString(), (char*)"memory", 6)) {
+        } else if(strcmp(getInput(), (char*)"memory")) {
             memory();
-        } else if(strcmp(charBufferToString(), (char*)"help", 4)) {
+        } else if(strcmp(getInput(), (char*)"help")) {
             help();
-        } else if(strcmp(charBufferToString(), (char*)"shadowtest", 10)) {
+        } else if(strcmp(getInput(), (char*)"shadowtest")) {
             shadowtest();
-        } else if(strcmp(charBufferToString(), (char*)"display", 7)) {
+        } else if(strcmp(getInput(), (char*)"display")) {
             display();
-        } else if(strcmp(charBufferToString(), (char*)"rect", 4)) {
+        } else if(strcmp(getInput(), (char*)"rect")) {
             rect();
-        } else if(strcmp(charBufferToString(), (char*)"icontest", 8)) {
-            icontest();
-        } else if(strcmp(charBufferToString(), (char*)"devices", 7)) {
+        } else if(strcmp(getInput(), (char*)"devices")) {
             devices();
         } else {
             error();
+            // memset(&kbBuffer[0], 0, kbBuffer[100]);
+            // renderer->print(charBufferToString());
+            renderer->print(getInput());
         }
 
         renderer->nextLine();
         renderer->color = prefixColor;
         renderer->print(prefix);
         renderer->color = textColor;
-        clearBuffer(kbBuffer);
+        buffer = 0;
         doCommand = false;
         isReady = true;
     }
@@ -215,12 +194,4 @@ void Terminal::loop() {
         CanWrite = false;
     }
     
-}
-
-char* Terminal::charBufferToString(){
-    char* out = (char*)"";
-    for(int i = 0; kbBuffer[i] != '\0'; i++) {
-        out[i] = kbBuffer[i];
-    }
-    return out;
 }

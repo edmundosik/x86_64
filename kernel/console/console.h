@@ -1,13 +1,14 @@
 #pragma once
 #include <stdint.h>
+#include "string.h"
 #include "kernelUtil.h"
 
-class Terminal {
+class Console {
     public:
         char* prefix;
         uint32_t prefixColor;
         uint32_t textColor;
-        void InitTTY();
+        void InitCMD();
         void loop();
     private:
         bool isReady;
