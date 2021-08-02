@@ -28,6 +28,11 @@ __attribute__((interrupt)) void MouseInt_Handler(interrupt_frame* frame) {
     PIC_EndSlave();
 }
 
+__attribute__((interrupt)) void PITInt_Handler(interrupt_frame* frame) {
+    PIT::Tick();
+    PIC_EndMaster();
+}
+
 void RemapPIC() {
     uint8_t a1, a2;
 
